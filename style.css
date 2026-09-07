@@ -73,6 +73,22 @@ h1 {
   line-height: 1.04;
 }
 
+.hero-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.hero-logo {
+  width: clamp(44px, 6vw, 64px);
+  height: clamp(44px, 6vw, 64px);
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(173, 212, 255, 0.35);
+  box-shadow: 0 10px 24px -14px rgba(101, 173, 255, 0.6);
+}
+
 .subtitle {
   margin: 0 auto;
   max-width: 60ch;
@@ -148,6 +164,7 @@ h2 {
   font-weight: 600;
 }
 
+
 .page-card {
   max-width: 760px;
   margin: 0 auto;
@@ -204,6 +221,14 @@ h2 {
     padding: 3.8rem 0 3.2rem;
   }
 
+  .hero-title {
+    gap: 0.5rem;
+  }
+
+  .hero-logo {
+    border-radius: 10px;
+  }
+
   .grid {
     grid-template-columns: 1fr;
   }
@@ -211,4 +236,5 @@ h2 {
   .tile {
     padding: 1.2rem 1.1rem;
   }
+
 }
