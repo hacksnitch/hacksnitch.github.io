@@ -30,7 +30,7 @@ html, body {
 }
 
 body {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
   color: var(--text-main);
   background:
     radial-gradient(circle at 14% 12%, rgba(47, 143, 224, 0.10), transparent 40%),
@@ -349,6 +349,18 @@ section + section {
   background: var(--gradient-brand);
   font-size: 1.3rem;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.venture-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.venture-card + .venture-card {
+  margin-top: 1rem;
 }
 
 .venture-card h3 {
