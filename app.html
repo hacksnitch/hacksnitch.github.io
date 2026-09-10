@@ -3,33 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>App</title>
+    <title>Apps &amp; Utilities | Mark Irvin</title>
+    <meta name="description" content="Apps and utilities built by Mark Irvin, including hack week and personal projects." />
+    <link rel="icon" href="hacksnitch_logo_me_159KB.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="background-glow" aria-hidden="true"></div>
-    <main class="container">
+
+    <nav class="site-nav">
+      <a class="brand" href="index.html">
+        <img class="brand-mark" src="hacksnitch_logo_me_159KB.jpg" alt="" />
+        M. Irvin
+      </a>
+      <div class="nav-links">
+        <a href="index.html#about">About</a>
+        <a href="docs.html">Docs</a>
+        <a href="app.html">Apps</a>
+      </div>
+    </nav>
+
+    <main class="container container--narrow">
       <article class="page-card" aria-labelledby="app-title">
-        <p class="eyebrow"></p>
+        <p class="eyebrow">Apps &amp; Utilities</p>
         <h1 id="app-title">Utilities and Apps</h1>
         <p>
-          Here are some of the apps created from my own projects, hack weeks and other.
+          Here are some of the apps created from my own projects, hack weeks
+          and other side builds.
         </p>
-        <ul>
+        <ul class="item-list">
           <li>
-          <a href="https://github.com/hacksnitch/Bender" target="_blank">Autonomous Vehicle</a>
+            <a href="https://github.com/hacksnitch/Bender" target="_blank" rel="noopener">Autonomous Vehicle</a>
+            <span class="status-tag live">Live</span>
           </li>
-          <li>WebHook Receiver used for Agility Webhooks</li>
-          <li>File Encryption Utility (coming Soon) </li>
+          <li>
+            <span>WebHook Receiver used for Agility Webhooks</span>
+            <span class="status-tag live">Live</span>
+          </li>
+          <li>
+            <span>CryptoFyo &mdash; File Encryption Utility</span>
+            <span class="status-tag soon">Coming soon</span>
+          </li>
         </ul>
         <a class="back-link" href="index.html" aria-label="Back to main">Back to main</a>
       </article>
     </main>
+
   </body>
 </html>

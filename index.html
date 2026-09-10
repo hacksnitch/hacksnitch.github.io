@@ -3,50 +3,166 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mark Irvin | Splash</title>
+    <title>Mark Irvin | Tooling Architect &amp; Builder</title>
     <meta
       name="description"
-      content="A modern and simple splash page with quick links to docs and app."
+      content="Mark Irvin - Tooling Architect and Technical Lead specializing in API architecture, application security, and agile platform tooling. Docs, apps, and projects."
     />
+    <link rel="icon" href="hacksnitch_logo_me_159KB.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="background-glow" aria-hidden="true"></div>
+
+    <nav class="site-nav">
+      <a class="brand" href="index.html">
+        <img class="brand-mark" src="hacksnitch_logo_me_159KB.jpg" alt="" />
+        M. Irvin
+      </a>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#focus">Focus</a>
+        <a href="docs.html">Docs</a>
+        <a href="app.html">Apps</a>
+      </div>
+    </nav>
+
     <main class="container">
       <header class="hero">
-        <p class="eyebrow"></p>
+        <p class="eyebrow">Tooling Architect &middot; App Security &middot; Agile Platforms</p>
         <h1 class="hero-title">
           <img
             class="hero-logo"
             src="hacksnitch_logo_me_159KB.jpg"
             alt="Hacksnitch logo"
           />
-          <span>M. Irvin </span>
+          <span class="gradient-text">Mark Irvin</span>
         </h1>
         <p class="subtitle">
-          A quick, simple way to get inside of my head and explore my work 
+          A quick, simple way to get inside of my head and explore my work &mdash;
+          16+ years building enterprise tooling, securing applications, and
+          shipping agile platforms.
         </p>
+        <div class="chip-row">
+          <span class="chip"><span class="chip-dot"></span>Security+</span>
+          <span class="chip"><span class="chip-dot"></span>CHFI</span>
+          <span class="chip"><span class="chip-dot"></span>Scrum Master</span>
+          <span class="chip"><span class="chip-dot"></span>Product Owner</span>
+        </div>
       </header>
 
-      <section class="grid" aria-label="Quick links">
-        <a class="tile" href="docs.html" aria-label="Open documentation page">
-          <h2>Docs and Papers</h2>
-          <p>Agility, API, Architecture and Math Docs</p>
-          <span class="tile-action"></span>
-        </a>
+      <section id="about" aria-labelledby="about-heading">
+        <div class="section-head">
+          <h2 id="about-heading">About</h2>
+          <span class="section-kicker">The short version</span>
+        </div>
+        <div class="about-card">
+          <p>
+            I'm a <strong>Tooling Architect / Technical Lead</strong> with over
+            20 years of software experience, currently working with
+            a <strong>Forbes 50 company</strong> on a contract basis. My work spans
+            <strong>API architecture</strong>, <strong>application security</strong>,
+            Agility platform tooling 
+             and enterprise
+            <strong>data quality</strong> systems.
+          </p>
+          <p>
+          </p>
+        </div>
+      </section>
 
-        <a class="tile" href="app.html" aria-label="Open app page">
-          <h2>Apps and Utilities</h2>
-          <p>Launch your app area and jump into what you are building.</p>
-          <span class="tile-action"></span>
-        </a>
+      <section id="focus" aria-labelledby="focus-heading">
+        <div class="section-head">
+          <h2 id="focus-heading">Focus areas</h2>
+          <span class="section-kicker">What I work on</span>
+        </div>
+        <div class="skills-grid">
+          <div class="skill-card">
+            <span class="skill-icon">&#9889;</span>
+            <h3>API Architecture</h3>
+            <p>Designing and scaling APIs that hold up under real enterprise load.</p>
+          </div>
+          <div class="skill-card">
+            <span class="skill-icon">&#128737;&#65039;</span>
+            <h3>Application Security</h3>
+            <p>Security+ and CHFI grounded &mdash; threat modelling, hardening, and secure design.</p>
+          </div>
+          <div class="skill-card">
+            <span class="skill-icon">&#128200;</span>
+            <h3>Agile Platform Tooling</h3>
+            <p>Deep experience with Digital.ai Agility, including undocumented API work.</p>
+          </div>
+          <div class="skill-card">
+            <span class="skill-icon">&#129513;</span>
+            <h3>Enterprise Data Quality</h3>
+            <p>Detection and monitoring systems with namespaced rule sets.</p>
+          </div>
+          <div class="skill-card">
+            <span class="skill-icon">&#127919;</span>
+            <h3>Product &amp; Scrum Leadership</h3>
+            <p>Certified Scrum Master and Product Owner, bridging build and delivery.</p>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="venture-heading">
+        <div class="section-head">
+          <h2 id="venture-heading">Currently building</h2>
+        </div>
+        <div class="venture-card">
+          <span class="venture-badge" aria-hidden="true">&#128274;</span>
+          <div>
+            <h3>CryptoFyo</h3>
+            <p>
+              A file encryption utility &mdash; simple, dependable encryption
+              for everyday files.
+            </p>
+            <span class="venture-tag">In progress</span>
+          </div>
+        </div>
+        <div class="venture-card">
+          <span class="venture-badge" aria-hidden="true">
+            <img src="hacksnitch_logo_me_159KB.jpg" alt="" />
+          </span>
+          <div>
+            <h3>Hacksnitch</h3>
+            <p>
+              A SAST (Static Application Security Testing) tool built
+              specifically for mobile platforms.
+            </p>
+            <span class="venture-tag">In progress</span>
+          </div>
+        </div>
+      </section>
+
+      <section aria-label="Quick links">
+        <div class="section-head">
+          <h2>Explore</h2>
+          <span class="section-kicker">Jump in</span>
+        </div>
+        <div class="grid">
+          <a class="tile" href="docs.html" aria-label="Open documentation page">
+            <span class="tile-icon" aria-hidden="true">&#128220;</span>
+            <h2>Docs and Papers</h2>
+            <p>Agility, API, architecture and math docs.</p>
+            <span class="tile-action">Browse docs</span>
+          </a>
+
+          <a class="tile" href="app.html" aria-label="Open app page">
+            <span class="tile-icon" aria-hidden="true">&#129513;</span>
+            <h2>Apps and Utilities</h2>
+            <p>Launch your app area and jump into what you are building.</p>
+            <span class="tile-action">View apps</span>
+          </a>
+        </div>
       </section>
     </main>
+
   </body>
 </html>
