@@ -574,6 +574,54 @@ h2 {
   background: rgba(255, 201, 120, 0.12);
 }
 
+.container--docs {
+  width: min(1000px, 92vw);
+}
+
+.page-card--wide {
+  max-width: none;
+}
+
+.doc-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 1.8rem;
+}
+
+.doc-group {
+  margin-top: 0;
+}
+
+.doc-columns .item-list {
+  gap: 0.55rem;
+}
+
+.doc-columns .item-list li {
+  padding: 0.65rem 0.85rem;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 760px) {
+  .doc-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.doc-group-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.doc-group .item-list {
+  margin-top: 0.75rem;
+}
+
 .back-link {
   display: inline-flex;
   align-items: center;
