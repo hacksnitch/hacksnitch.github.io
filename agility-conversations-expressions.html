@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agility Conversations &amp; Expressions — with /api/asset JSON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5fa; --surface:#ffffff; --ink:#1b2233; --muted:#5b6475; --line:#dde1ea;
+  --story:#2563eb; --conv:#7c3aed; --expr:#059669; --member:#ea580c; --defect:#dc2626;
+  --created:#15803d; --updated:#b45309; --same:#64748b;
+  --code-bg:#151b2e; --code-ink:#e3e8f4;
+  --sans:"IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141d; --surface:#1a1f2d; --ink:#e7eaf3; --muted:#9aa3b6; --line:#2d3448;
+    --story:#60a5fa; --conv:#a78bfa; --expr:#34d399; --member:#fb923c; --defect:#f87171;
+    --created:#4ade80; --updated:#fbbf24; --same:#94a3b8;
+    --code-bg:#0c101b; --code-ink:#e3e8f4;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141d; --surface:#1a1f2d; --ink:#e7eaf3; --muted:#9aa3b6; --line:#2d3448;
+  --story:#60a5fa; --conv:#a78bfa; --expr:#34d399; --member:#fb923c; --defect:#f87171;
+  --created:#4ade80; --updated:#fbbf24; --same:#94a3b8;
+  --code-bg:#0c101b; --code-ink:#e3e8f4;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans)}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 22px 80px}
+.prose{max-width:760px}
+h1{font-size:clamp(30px,4.4vw,46px);line-height:1.08;margin:0 0 14px;font-weight:700;letter-spacing:-.015em}
+h2{font-size:27px;line-height:1.2;margin:64px 0 10px;font-weight:700;letter-spacing:-.01em}
+h3{font-size:19px;margin:0;font-weight:600}
+p{margin:0 0 14px}
+.lede{font-size:18.5px;color:var(--muted);max-width:720px}
+code{font-family:var(--mono);font-size:.88em;background:color-mix(in srgb,var(--conv) 9%,var(--surface));padding:1px 5px;border-radius:4px}
+a{color:var(--story)}
+:focus-visible{outline:3px solid var(--story);outline-offset:2px}
+
+/* asset color chips used inline */
+.a{font-weight:600;white-space:nowrap}
+.a.story{color:var(--story)} .a.conv{color:var(--conv)} .a.expr{color:var(--expr)}
+.a.member{color:var(--member)} .a.defect{color:var(--defect)}
+
+/* ------- hero key ------- */
+.key{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0;padding:0;list-style:none}
+.key li{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:14.5px}
+.key i{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+/* ------- chart ------- */
+.chart{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 18px 8px}
+.chart-scroll{overflow-x:auto}
+.chart-scroll svg{display:block;width:100%;min-width:880px;height:auto}
+.chart figcaption{font-size:14px;color:var(--muted);padding:8px 4px 10px}
+svg text{font-family:var(--sans);fill:var(--ink)}
+svg .mono{font-family:var(--mono)}
+svg .hdr{fill:#fff;font-weight:600}
+svg .lbl{font-weight:600;font-size:13px}
+svg .val{font-family:var(--mono);font-size:12.5px;fill:var(--muted)}
+svg .val.strong{fill:var(--ink)}
+svg .note{font-size:12px;fill:var(--muted)}
+
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 22px;margin:18px 0 0;padding:0;list-style:none}
+.legend li{display:grid;grid-template-columns:46px 1fr;gap:10px;align-items:start;font-size:14.5px;line-height:1.45}
+.legend svg{width:46px;height:16px;margin-top:3px}
+.legend b{display:block}
+.legend span{color:var(--muted)}
+
+/* ------- how it works ------- */
+.steps{list-style:none;padding:0;margin:22px 0 0;counter-reset:s;display:grid;gap:12px;max-width:820px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 18px 14px 14px}
+.steps li::before{content:counter(s);width:36px;height:36px;border-radius:50%;background:var(--conv);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:17px}
+.steps .who{font-weight:600;display:block}
+.steps q{display:block;margin:6px 0 4px;font-style:italic;quotes:"\201C" "\201D"}
+.steps .eff{color:var(--muted);font-size:15px}
+
+/* ------- what changes ------- */
+.change{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin:18px 0;overflow:hidden}
+.change-head{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--conv) 7%,var(--surface))}
+.change-head .n{width:36px;height:36px;border-radius:50%;background:var(--conv);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:17px}
+.change-head .sub{display:block;color:var(--muted);font-size:15px;margin-top:2px}
+.change-head q{display:block;font-style:italic;color:var(--muted);font-size:15px;margin-top:2px}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:13.5px;padding:10px 16px;border-bottom:1px solid var(--line)}
+td{padding:10px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.v{font-family:var(--mono);font-size:13px}
+td.v.new{color:var(--ink);font-weight:600}
+td.v.old{color:var(--muted)}
+.tag{display:inline-block;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.tag.c{background:color-mix(in srgb,var(--created) 15%,var(--surface));color:var(--created)}
+.tag.u{background:color-mix(in srgb,var(--updated) 16%,var(--surface));color:var(--updated)}
+.tag.s{background:color-mix(in srgb,var(--same) 14%,var(--surface));color:var(--same)}
+.change-foot{padding:12px 18px;font-size:14.5px;color:var(--muted);border-top:1px solid var(--line)}
+.change-foot b{color:var(--ink)}
+
+/* ------- api ------- */
+.api-step{margin:30px 0 0}
+.api-step h3{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.api-step h3 .n{width:30px;height:30px;border-radius:50%;background:var(--conv);color:#fff;font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.pair{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:14px}
+@media (max-width:860px){.pair{grid-template-columns:1fr}}
+.code{position:relative;background:var(--code-bg);color:var(--code-ink);border-radius:12px;margin:0;overflow:auto}
+.code .cap{display:block;font-family:var(--sans);font-size:12.5px;color:#93a0bd;padding:10px 16px 0}
+.code pre{margin:0;padding:8px 16px 16px;font:13px/1.6 var(--mono);white-space:pre;overflow-x:auto}
+.hk{color:#93c5fd}.hs{color:#86efac}.hc{color:#7d8aa8;font-style:italic}.ho{color:#fcd34d}.hp{color:#f0abfc}
+.callout{border-left:4px solid var(--updated);background:color-mix(in srgb,var(--updated) 9%,var(--surface));border-radius:10px;padding:14px 18px;margin:18px 0;max-width:820px}
+.callout.info{border-color:var(--story);background:color-mix(in srgb,var(--story) 8%,var(--surface))}
+.callout p:last-child{margin:0}
+.callout b{display:block;margin-bottom:4px}
+footer{margin-top:60px;color:var(--muted);font-size:14px;max-width:820px}
+/* ------- collapsible sections ------- */
+details.fold{margin-top:20px;border-top:1px solid var(--line)}
+section:has(+ section > details.fold) > figure, section > figure{margin-bottom:44px}
+details.fold>summary{padding-bottom:18px}
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 4px;border-radius:8px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary h2{margin:0}
+details.fold>summary::before{content:"";flex:none;width:12px;height:12px;border-right:3px solid var(--conv);border-bottom:3px solid var(--conv);transform:rotate(-45deg);transition:transform .15s ease;margin-left:4px}
+details.fold[open]>summary::before{transform:rotate(45deg)}
+details.fold>summary:hover h2{color:var(--conv)}
+details.fold>summary::after{content:"Show";margin-left:auto;font-size:14px;font-weight:600;color:var(--conv)}
+details.fold[open]>summary::after{content:"Hide"}
+details.fold>:not(summary):first-of-type{margin-top:8px}
+@media (prefers-reduced-motion: reduce){details.fold>summary::before{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>Conversations &amp; Expressions in Digital.ai Agility</h1>
+  <p class="lede">When conversations were released years ago when I was a platform engineer at VersionOne, I didn't quite understand the witchcraft until I got some insight from one of my teammates Rajiv Delwadia, one of the co-founders. Since then, I struggled to remember how to navigate conversations because I never documented it.   Well, not quite since I did
+    a <a href=https://stackoverflow.com/questions/23938833/adding-a-versionone-expression-using-the-rest-api/24001461#24001461>StackOverflow response</a> on it back in 2014 but it still doesn't seem to stick so I took sometime last year to walk through it. Without further ado...
+    <br><br>A conversation is a container. Every comment you post is an expression inside it. This page shows how the pieces point at each other, what changes in the data each time someone comments on a story, and how to do every step through <code>/api/asset</code> with JSON (I still say JaySAWN).
+    <br><br>*Note: I could never layout anything so nice, crisp and colorful. I had a few notes, scribly flowcharts and ideas and Claude did the rest! </p>
+  <ul class="key" aria-label="Asset colors">
+    <li><i style="background:var(--story)"></i>Story</li>
+    <li><i style="background:var(--conv)"></i>Conversation</li>
+    <li><i style="background:var(--expr)"></i>Expression</li>
+    <li><i style="background:var(--member)"></i>Member</li>
+    <li><i style="background:var(--defect)"></i>Defect</li>
+  </ul>
+</header>
+
+<!-- ============ 1. RELATIONSHIP CHART ============ -->
+<section>
+  <h2>The relationship chart</h2>
+  <p class="prose">This is the data after step 3 below: one story, one conversation holding two expressions, and the two people who wrote them. Each arrow starts at an attribute and lands on the asset (or attribute) it points to.</p>
+
+  <figure class="chart">
+    <div class="chart-scroll">
+    <svg viewBox="0 0 1240 770" role="img" aria-labelledby="chartTitle chartDesc">
+      <title id="chartTitle">Story, Conversation, Expression and Member relationships</title>
+      <desc id="chartDesc">Story S-01234 is mentioned by Expression 3001. Conversation 3000 contains Expressions 3001 and 3002; 3001 is its Topic. Expression 3002 is in reply to 3001. Each expression has an Author member, and both authors are Participants of the conversation.</desc>
+      <defs>
+        <marker id="mStory" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--story)"/></marker>
+        <marker id="mConv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--conv)"/></marker>
+        <marker id="mExpr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--expr)"/></marker>
+        <marker id="mMember" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--member)"/></marker>
+      </defs>
+
+      <!-- ===== STORY ===== -->
+      <g>
+        <rect x="20" y="250" width="330" height="142" rx="12" style="fill:var(--surface);stroke:var(--story)" stroke-width="2"/>
+        <rect x="20" y="250" width="330" height="40" rx="12" style="fill:var(--story)"/>
+        <rect x="20" y="272" width="330" height="18" style="fill:var(--story)"/>
+        <text x="36" y="276" class="hdr" font-size="15">Story</text>
+        <text x="334" y="276" class="hdr mono" font-size="13" text-anchor="end">Story:1100 · S-01234</text>
+        <text x="36" y="312" class="lbl">Name</text><text x="334" y="312" class="val strong" text-anchor="end">Image preview proxy</text>
+        <text x="36" y="342" class="lbl">Number</text><text x="334" y="342" class="val" text-anchor="end">S-01234</text>
+        <rect x="26" y="353" width="318" height="28" rx="6" style="fill:color-mix(in srgb,var(--story) 13%,var(--surface))"/>
+        <text x="36" y="372" class="lbl" style="fill:var(--story)">MentionedInExpressions</text><text x="334" y="372" class="val strong" text-anchor="end">[Expression:3001]</text>
+      </g>
+      <text x="20" y="420" class="note">Only expressions that mention the</text>
+      <text x="20" y="437" class="note">story show up here — the reply doesn't.</text>
+
+      <!-- ===== CONVERSATION CONTAINER ===== -->
+      <rect x="400" y="20" width="470" height="730" rx="18" style="fill:color-mix(in srgb,var(--conv) 6%,var(--surface));stroke:var(--conv)" stroke-width="2" stroke-dasharray="8 6"/>
+      <rect x="400" y="20" width="470" height="44" rx="18" style="fill:var(--conv)"/>
+      <rect x="400" y="46" width="470" height="18" style="fill:var(--conv)"/>
+      <text x="420" y="48" class="hdr" font-size="15">Conversation</text>
+      <text x="850" y="48" class="hdr mono" font-size="13" text-anchor="end">Conversation:3000</text>
+
+      <rect x="416" y="76" width="438" height="130" rx="10" style="fill:var(--surface);stroke:var(--line)"/>
+      <rect x="420" y="81" width="430" height="28" rx="6" style="fill:color-mix(in srgb,var(--conv) 12%,var(--surface))"/>
+      <text x="430" y="100" class="lbl" style="fill:var(--conv)">Topic</text><text x="840" y="100" class="val strong" text-anchor="end">Expression:3001</text>
+      <rect x="420" y="111" width="430" height="28" rx="6" style="fill:color-mix(in srgb,var(--conv) 12%,var(--surface))"/>
+      <text x="430" y="130" class="lbl" style="fill:var(--conv)">ContainedExpressions</text><text x="840" y="130" class="val strong" text-anchor="end">[3001, 3002]</text>
+      <rect x="420" y="141" width="430" height="28" rx="6" style="fill:color-mix(in srgb,var(--member) 12%,var(--surface))"/>
+      <text x="430" y="160" class="lbl" style="fill:var(--member)">Participants</text><text x="840" y="160" class="val strong" text-anchor="end">[Member:1002, Member:1005]</text>
+      <text x="430" y="190" class="lbl">LatestActivityAt</text><text x="840" y="190" class="val" text-anchor="end">10:15 (time of newest expression)</text>
+
+      <!-- Expression 3001 -->
+      <g>
+        <rect x="436" y="240" width="398" height="192" rx="12" style="fill:var(--surface);stroke:var(--expr)" stroke-width="2"/>
+        <rect x="436" y="240" width="398" height="36" rx="12" style="fill:var(--expr)"/>
+        <rect x="436" y="260" width="398" height="16" style="fill:var(--expr)"/>
+        <text x="450" y="264" class="hdr" font-size="14.5">Expression · the Topic</text>
+        <text x="820" y="264" class="hdr mono" font-size="12.5" text-anchor="end">Expression:3001</text>
+        <text x="450" y="300" class="lbl">Content</text><text x="820" y="300" class="val strong" text-anchor="end" font-style="italic">"…needs to be checked for SSRF"</text>
+        <text x="450" y="328" class="lbl" style="fill:var(--member)">Author</text><text x="820" y="328" class="val" text-anchor="end">Member:1002</text>
+        <text x="450" y="356" class="lbl" style="fill:var(--conv)">BelongsTo</text><text x="820" y="356" class="val" text-anchor="end">Conversation:3000</text>
+        <text x="450" y="384" class="lbl">InReplyTo</text><text x="820" y="384" class="val" text-anchor="end">— (it started the thread)</text>
+        <rect x="442" y="394" width="386" height="28" rx="6" style="fill:color-mix(in srgb,var(--story) 13%,var(--surface))"/>
+        <text x="450" y="413" class="lbl" style="fill:var(--story)">Mentions</text><text x="820" y="413" class="val strong" text-anchor="end">Story:1100</text>
+      </g>
+
+      <!-- Expression 3002 -->
+      <g>
+        <rect x="436" y="490" width="398" height="192" rx="12" style="fill:var(--surface);stroke:var(--expr)" stroke-width="2"/>
+        <rect x="436" y="490" width="398" height="36" rx="12" style="fill:var(--expr)"/>
+        <rect x="436" y="510" width="398" height="16" style="fill:var(--expr)"/>
+        <text x="450" y="514" class="hdr" font-size="14.5">Expression · a reply</text>
+        <text x="820" y="514" class="hdr mono" font-size="12.5" text-anchor="end">Expression:3002</text>
+        <text x="450" y="550" class="lbl">Content</text><text x="820" y="550" class="val strong" text-anchor="end" font-style="italic">"…ran it through Semgrep…"</text>
+        <text x="450" y="578" class="lbl" style="fill:var(--member)">Author</text><text x="820" y="578" class="val" text-anchor="end">Member:1005</text>
+        <text x="450" y="606" class="lbl" style="fill:var(--conv)">BelongsTo</text><text x="820" y="606" class="val" text-anchor="end">Conversation:3000</text>
+        <rect x="442" y="616" width="386" height="28" rx="6" style="fill:color-mix(in srgb,var(--expr) 13%,var(--surface))"/>
+        <text x="450" y="635" class="lbl" style="fill:var(--expr)">InReplyTo</text><text x="820" y="635" class="val strong" text-anchor="end">Expression:3001</text>
+        <text x="450" y="663" class="lbl">Mentions</text><text x="820" y="663" class="val" text-anchor="end">[ ] (nothing mentioned)</text>
+      </g>
+      <text x="420" y="725" class="note">Everything inside the dashed box is one conversation.</text>
+
+      <!-- ===== MEMBERS ===== -->
+      <g>
+        <rect x="960" y="262" width="260" height="78" rx="12" style="fill:var(--surface);stroke:var(--member)" stroke-width="2"/>
+        <rect x="960" y="262" width="260" height="36" rx="12" style="fill:var(--member)"/>
+        <rect x="960" y="282" width="260" height="16" style="fill:var(--member)"/>
+        <text x="976" y="286" class="hdr" font-size="14.5">Member</text>
+        <text x="1206" y="286" class="hdr mono" font-size="12.5" text-anchor="end">Member:1002</text>
+        <text x="976" y="324" class="lbl">Name</text><text x="1206" y="324" class="val strong" text-anchor="end">Jim (wrote the topic)</text>
+      </g>
+      <g>
+        <rect x="960" y="512" width="260" height="78" rx="12" style="fill:var(--surface);stroke:var(--member)" stroke-width="2"/>
+        <rect x="960" y="512" width="260" height="36" rx="12" style="fill:var(--member)"/>
+        <rect x="960" y="532" width="260" height="16" style="fill:var(--member)"/>
+        <text x="976" y="536" class="hdr" font-size="14.5">Member</text>
+        <text x="1206" y="536" class="hdr mono" font-size="12.5" text-anchor="end">Member:1005</text>
+        <text x="976" y="574" class="lbl">Name</text><text x="1206" y="574" class="val strong" text-anchor="end">Mark (wrote the reply)</text>
+      </g>
+
+      <!-- ===== ARROWS ===== -->
+      <!-- Mentions <-> MentionedInExpressions -->
+      <path d="M352 367 C 398 367, 392 408, 440 408" fill="none" style="stroke:var(--story)" stroke-width="2.6" marker-start="url(#mStory)" marker-end="url(#mStory)"/>
+      <!-- BelongsTo <-> ContainedExpressions -->
+      <path d="M836 352 H 862 V 125 H 856" fill="none" style="stroke:var(--conv)" stroke-width="2.6" marker-start="url(#mConv)" marker-end="url(#mConv)"/>
+      <path d="M836 602 H 862 V 352" fill="none" style="stroke:var(--conv)" stroke-width="2.6" marker-start="url(#mConv)"/>
+      <!-- Topic -->
+      <path d="M418 95 H 410 V 258 H 434" fill="none" style="stroke:var(--conv)" stroke-width="2.4" stroke-dasharray="2 4" stroke-linecap="round" marker-end="url(#mConv)"/>
+      <!-- InReplyTo -->
+      <path d="M635 489 V 436" fill="none" style="stroke:var(--expr)" stroke-width="2.6" marker-end="url(#mExpr)"/>
+      <text x="645" y="467" font-size="12.5" font-weight="600" style="fill:var(--expr)">InReplyTo</text>
+      <!-- Author -->
+      <path d="M836 324 C 905 324, 905 280, 958 280" fill="none" style="stroke:var(--member)" stroke-width="2.6" marker-end="url(#mMember)"/>
+      <path d="M836 574 C 905 574, 905 530, 958 530" fill="none" style="stroke:var(--member)" stroke-width="2.6" marker-end="url(#mMember)"/>
+      <!-- Participants -->
+      <path d="M856 155 H 1090 V 260" fill="none" style="stroke:var(--member)" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#mMember)"/>
+      <path d="M1090 155 H 1232 V 551 H 1222" fill="none" style="stroke:var(--member)" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#mMember)"/>
+      <text x="1100" y="145" font-size="12.5" font-weight="600" style="fill:var(--member)">Participants</text>
+      <text x="912" y="304" font-size="12.5" font-weight="600" style="fill:var(--member)">Author</text>
+      <text x="912" y="554" font-size="12.5" font-weight="600" style="fill:var(--member)">Author</text>
+    </svg>
+    </div>
+    <figcaption>State after step 3. IDs are example values.</figcaption>
+
+    <ul class="legend">
+      <li><svg viewBox="0 0 46 16"><line x1="6" y1="8" x2="40" y2="8" style="stroke:var(--story)" stroke-width="2.6" marker-start="url(#mStory)" marker-end="url(#mStory)"/></svg><div><b>Mentions ⇄ MentionedInExpressions</b><span>The expression points at a work item; the work item points back. Two names, one link.</span></div></li>
+      <li><svg viewBox="0 0 46 16"><line x1="6" y1="8" x2="40" y2="8" style="stroke:var(--conv)" stroke-width="2.6" marker-start="url(#mConv)" marker-end="url(#mConv)"/></svg><div><b>BelongsTo ⇄ ContainedExpressions</b><span>Each expression belongs to exactly one conversation; the conversation lists all of them.</span></div></li>
+      <li><svg viewBox="0 0 46 16"><line x1="4" y1="8" x2="40" y2="8" style="stroke:var(--conv)" stroke-width="2.4" stroke-dasharray="2 4" stroke-linecap="round" marker-end="url(#mConv)"/></svg><div><b>Topic</b><span>The first expression. A conversation has only one.</span></div></li>
+      <li><svg viewBox="0 0 46 16"><line x1="4" y1="8" x2="40" y2="8" style="stroke:var(--expr)" stroke-width="2.6" marker-end="url(#mExpr)"/></svg><div><b>InReplyTo</b><span>Threading: a reply points at the expression it answers.</span></div></li>
+      <li><svg viewBox="0 0 46 16"><line x1="4" y1="8" x2="40" y2="8" style="stroke:var(--member)" stroke-width="2.6" marker-end="url(#mMember)"/></svg><div><b>Author</b><span>Who wrote this one expression.</span></div></li>
+      <li><svg viewBox="0 0 46 16"><line x1="4" y1="8" x2="40" y2="8" style="stroke:var(--member)" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#mMember)"/></svg><div><b>Participants</b><span>Every author in the conversation, plus any member who gets @mentioned. Maintained by the server.</span></div></li>
+    </ul>
+  </figure>
+</section>
+
+<!-- ============ 2. HOW IT WORKS ============ -->
+<section>
+<details class="fold">
+  <summary><h2>How it works</h2></summary>
+  <p class="prose">A walk through one security review on story <span class="a story">S-01234</span>. Each step lists what the person does; the next section shows exactly which attributes change.</p>
+  <ol class="steps">
+    <li><div><span class="who">Jim comments on the story.</span><q>This component needs to be checked for SSRF</q><span class="eff">This creates the conversation and its first expression. Through the API you create both in a single request, linked by an alias.</span></div></li>
+    <li><div><span class="who">Look at the story again.</span><span class="eff">You now have a conversation. The story points at Jim's expression, and that expression points at the new conversation.</span></div></li>
+    <li><div><span class="who">Mark replies.</span><q>I actually ran it through Semgrep and it didn't detect anything</q><span class="eff">A second expression joins the same conversation and Mark becomes a participant. The story doesn't change.</span></div></li>
+    <li><div><span class="who">Jim replies and references a defect.</span><q>Default rules don't follow our HttpFetcher wrapper. Logged D-02001 to add a custom rule.</q><span class="eff">A third expression. This one mentions a defect, so the defect now links back to the conversation.</span></div></li>
+    <li><div><span class="who">Mark replies and pulls in a reviewer.</span><q>Custom rule flagged fetchPreview(). Fix is pushed. @Linda, can you review?</q><span class="eff">A fourth expression. Mentioning Linda adds her as a participant even though she hasn't written anything.</span></div></li>
+    <li><div><span class="who">Read the whole thread back.</span><span class="eff">One query from the story, or one from the conversation, returns everything above in order.</span></div></li>
+  </ol>
+</details>
+</section>
+
+<!-- ============ 3. WHAT CHANGES ============ -->
+<section>
+<details class="fold">
+  <summary><h2>What changes at each step</h2></summary>
+  <p class="prose"><span class="tag c">Created</span> means a new asset. <span class="tag u">Updated</span> means an existing asset's attribute changed. <span class="tag s">Unchanged</span> is shown when you might expect a change and there isn't one.</p>
+
+  <article class="change">
+    <div class="change-head"><span class="n">1</span><div><h3>Jim comments on the story</h3><q>This component needs to be checked for SSRF</q></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Asset</th><th>Attribute</th><th>Before</th><th>After</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><span class="a expr">Expression:3001</span></td><td>Content · Author · Mentions</td><td class="v old">does not exist</td><td class="v new">"…checked for SSRF" · Member:1002 · [Story:1100]</td><td><span class="tag c">Created</span></td></tr>
+        <tr><td><span class="a expr">Expression:3001</span></td><td>BelongsTo</td><td class="v old">does not exist</td><td class="v new">Conversation:3000 (from the @conv alias)</td><td><span class="tag c">Created</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>Topic</td><td class="v old">does not exist</td><td class="v new">Expression:3001</td><td><span class="tag c">Created</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>ContainedExpressions</td><td class="v old">—</td><td class="v new">[3001]</td><td><span class="tag c">Created</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>Participants</td><td class="v old">—</td><td class="v new">[Jo]</td><td><span class="tag c">Created</span></td></tr>
+        <tr><td><span class="a story">Story:1100</span></td><td>MentionedInExpressions</td><td class="v old">[ ]</td><td class="v new">[3001]</td><td><span class="tag u">Updated</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="change-foot"><b>Why:</b> one request created both assets. The conversation came first under the alias <code>@conv</code>, and the expression used that alias for <code>BelongsTo</code>, which made it the conversation's first expression and its topic. The story gained the reverse side of <code>Mentions</code>.</div>
+  </article>
+
+  <article class="change">
+    <div class="change-head"><span class="n">2</span><div><h3>Look at the story again</h3><span class="sub">Read only — nothing is written</span></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Path you follow</th><th>Lands on</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td><code>Story.MentionedInExpressions</code></td><td><span class="a expr">Expression</span></td><td class="v new">[Expression:3001]</td></tr>
+        <tr><td><code>Story.MentionedInExpressions.BelongsTo</code></td><td><span class="a conv">Conversation</span></td><td class="v new">[Conversation:3000]</td></tr>
+        <tr><td><code>…BelongsTo.Participants.Name</code></td><td><span class="a member">Member</span></td><td class="v new">[Jo]</td></tr>
+      </tbody>
+    </table></div>
+    <div class="change-foot"><b>Why it matters:</b> the story never stores the conversation directly. You always reach it through the expression: Story → MentionedInExpressions → BelongsTo.</div>
+  </article>
+
+  <article class="change">
+    <div class="change-head"><span class="n">3</span><div><h3>Mark replies</h3><q>I actually ran it through Semgrep and it didn't detect anything</q></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Asset</th><th>Attribute</th><th>Before</th><th>After</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><span class="a expr">Expression:3002</span></td><td>Content · Author</td><td class="v old">does not exist</td><td class="v new">"…didn't detect anything" · Member:1005</td><td><span class="tag c">Created</span></td></tr>
+        <tr><td><span class="a expr">Expression:3002</span></td><td>BelongsTo · InReplyTo</td><td class="v old">does not exist</td><td class="v new">Conversation:3000 · Expression:3001</td><td><span class="tag c">Created</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>ContainedExpressions</td><td class="v old">[3001]</td><td class="v new">[3001, 3002]</td><td><span class="tag u">Updated</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>Participants</td><td class="v old">[Jo]</td><td class="v new">[Jo, Mark]</td><td><span class="tag u">Updated</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>LatestActivityAt</td><td class="v old">10:00</td><td class="v new">10:15</td><td><span class="tag u">Updated</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>Topic</td><td class="v old">Expression:3001</td><td class="v old">Expression:3001</td><td><span class="tag s">Unchanged</span></td></tr>
+        <tr><td><span class="a story">Story:1100</span></td><td>MentionedInExpressions</td><td class="v old">[3001]</td><td class="v old">[3001]</td><td><span class="tag s">Unchanged</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="change-foot"><b>Why the story doesn't change:</b> the reply doesn't mention the story. <code>MentionedInExpressions</code> only lists expressions whose <code>Mentions</code> include it. The story still reaches the reply, but through the conversation.</div>
+  </article>
+
+  <article class="change">
+    <div class="change-head"><span class="n">4</span><div><h3>Jim replies and references a defect</h3><q>Default rules don't follow our HttpFetcher wrapper. Logged D-02001 to add a custom rule.</q></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Asset</th><th>Attribute</th><th>Before</th><th>After</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><span class="a expr">Expression:3003</span></td><td>Author · InReplyTo · Mentions</td><td class="v old">does not exist</td><td class="v new">Member:1002 · Expression:3002 · [Defect:1200]</td><td><span class="tag c">Created</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>ContainedExpressions</td><td class="v old">[3001, 3002]</td><td class="v new">[3001, 3002, 3003]</td><td><span class="tag u">Updated</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>Participants</td><td class="v old">[Jo, Mark]</td><td class="v old">[Jo, Mark]</td><td><span class="tag s">Unchanged</span></td></tr>
+        <tr><td><span class="a defect">Defect:1200</span></td><td>MentionedInExpressions</td><td class="v old">[ ]</td><td class="v new">[3003]</td><td><span class="tag u">Updated</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="change-foot"><b>Why participants don't change:</b> Jim is already in the list. <b>New link:</b> the conversation now connects two work items — the story through 3001, the defect through 3003.</div>
+  </article>
+
+  <article class="change">
+    <div class="change-head"><span class="n">5</span><div><h3>Mark replies and pulls in a reviewer</h3><q>Custom rule flagged fetchPreview(). Fix is pushed. @Linda, can you review?</q></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Asset</th><th>Attribute</th><th>Before</th><th>After</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><span class="a expr">Expression:3004</span></td><td>Author · InReplyTo · Mentions</td><td class="v old">does not exist</td><td class="v new">Member:1005 · Expression:3003 · [Member:1009]</td><td><span class="tag c">Created</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>ContainedExpressions</td><td class="v old">[3001, 3002, 3003]</td><td class="v new">[3001 … 3004]</td><td><span class="tag u">Updated</span></td></tr>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>Participants</td><td class="v old">[Jo, Mark]</td><td class="v new">[Jo, Mark, Linda]</td><td><span class="tag u">Updated</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="change-foot"><b>Why Linda appears:</b> mentioned members are added to <code>Participants</code> just like authors. That's the difference between the two lists — <code>ContainedExpressions.Author</code> is who wrote something; <code>Participants</code> is who's involved.</div>
+  </article>
+
+  <article class="change">
+    <div class="change-head"><span class="n">6</span><div><h3>Final state</h3><span class="sub">Read only</span></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Asset</th><th>What it holds now</th></tr></thead>
+      <tbody>
+        <tr><td><span class="a conv">Conversation:3000</span></td><td>Topic 3001 · 4 expressions · participants Jo, Mark, Linda</td></tr>
+        <tr><td><span class="a expr">Expressions 3001–3004</span></td><td>Chain of <code>InReplyTo</code>: 3002 → 3001, 3003 → 3002, 3004 → 3003</td></tr>
+        <tr><td><span class="a story">Story:1100</span></td><td><code>MentionedInExpressions</code> = [3001]</td></tr>
+        <tr><td><span class="a defect">Defect:1200</span></td><td><code>MentionedInExpressions</code> = [3003]</td></tr>
+      </tbody>
+    </table></div>
+  </article>
+</details>
+</section>
+
+<!-- ============ 4. API ============ -->
+<section>
+<details class="fold">
+  <summary><h2>Doing it through /api/asset with JSON</h2></summary>
+  <div class="prose">
+    <p>Every step is one <code>POST</code> to <code>/api/asset</code> with <code>Content-Type: application/json</code>. The same endpoint creates (<code>"AssetType"</code>), updates (<code>"from"</code> + <code>"update"</code>), and reads (<code>"from"</code> + <code>"select"</code>). The <code>//</code> lines in the samples are notes for you — strip them before sending, since JSON has no comments.</p>
+  </div>
+
+  <div class="code"><span class="cap">Request template — save each payload as a .json file</span><pre><span class="hk">curl</span> -X POST <span class="hs">"https://&lt;host&gt;/&lt;instance&gt;/api/asset"</span> \
+  -H <span class="hs">"Authorization: Bearer $V1_TOKEN"</span> \
+  -H <span class="hs">"Content-Type: application/json"</span> \
+  -H <span class="hs">"Accept: application/json"</span> \
+  --data-binary @step1.json
+
+<span class="hc"># Dry run first: nothing is written, you see what would change</span>
+<span class="hk">curl</span> -X POST <span class="hs">"https://&lt;host&gt;/&lt;instance&gt;/api/asset?previewOnly=true"</span> ...</pre></div>
+
+  <div class="api-step">
+    <h3><span class="n">1</span>Create the conversation and its first expression</h3>
+    <div class="pair">
+      <div class="code"><span class="cap">step1.json — conversation first, then the expression that uses its alias</span><pre>[
+  {
+    <span class="hk">"@conv"</span>: {
+      <span class="hk">"AssetType"</span>: <span class="hs">"Conversation"</span>
+    }
+  },
+  {
+    <span class="hk">"AssetType"</span>: <span class="hs">"Expression"</span>,
+    <span class="hk">"Content"</span>: <span class="hs">"This component needs to be checked for SSRF"</span>,
+    <span class="hk">"BelongsTo"</span>: <span class="ho">"@conv"</span>,
+    <span class="hk">"Mentions"</span>: [<span class="hs">"Story:1100"</span>]
+  }
+]</pre></div>
+      <div class="code"><span class="cap">Response (trimmed)</span><pre>{
+  <span class="hk">"complete"</span>: <span class="hp">true</span>,
+  <span class="hk">"assetsCreated"</span>: {
+    <span class="hk">"oidTokens"</span>: [
+      <span class="hs">"Conversation:3000"</span>,
+      <span class="hs">"Expression:3001"</span>
+    ],
+    <span class="hk">"count"</span>: <span class="hp">2</span>
+  },
+  <span class="hk">"commandFailures"</span>: { <span class="hk">"commands"</span>: [], <span class="hk">"count"</span>: <span class="hp">0</span> }
+}
+<span class="hc">// Keep Conversation:3000 — every reply needs it.</span></pre></div>
+    </div>
+    <div class="callout info"><b>Through the API, the conversation comes first</b><p>An expression needs a conversation to belong to, so step 1 creates both in one request. The first command creates the conversation and names it <code>@conv</code>. The second command creates the expression and sets <code>BelongsTo</code> to <code>"@conv"</code>, which the server swaps for the real OID. The order matters: the alias has to be defined before anything refers to it.</p>
+    <p>An alias only exists inside the request that defines it. You only need it this once. Every reply after this uses the real OID from the response, <code>Conversation:3000</code>.</p></div>
+  </div>
+
+  <div class="api-step">
+    <h3><span class="n">2</span>Observe: find the conversation from the story</h3>
+    <div class="pair">
+      <div class="code"><span class="cap">step2.json</span><pre>{
+  <span class="hk">"from"</span>: <span class="hs">"Story"</span>,
+  <span class="hk">"where"</span>: { <span class="hk">"Number"</span>: <span class="hs">"S-01234"</span> },
+  <span class="hk">"select"</span>: [
+    <span class="hs">"Name"</span>,
+    {
+      <span class="hk">"from"</span>: <span class="hs">"MentionedInExpressions"</span>,
+      <span class="hk">"select"</span>: [
+        <span class="hs">"Content"</span>,
+        <span class="hs">"Author.Name"</span>,
+        <span class="hs">"BelongsTo"</span>,
+        <span class="hs">"BelongsTo.Participants.Name"</span>
+      ]
+    }
+  ]
+}</pre></div>
+      <div class="code"><span class="cap">Response → queryResult (trimmed)</span><pre>[[{
+  <span class="hk">"_oid"</span>: <span class="hs">"Story:1100"</span>,
+  <span class="hk">"Name"</span>: <span class="hs">"Image preview proxy"</span>,
+  <span class="hk">"MentionedInExpressions"</span>: [{
+    <span class="hk">"_oid"</span>: <span class="hs">"Expression:3001"</span>,
+    <span class="hk">"Content"</span>: <span class="hs">"This component needs to be checked for SSRF"</span>,
+    <span class="hk">"Author.Name"</span>: <span class="hs">"Jo"</span>,
+    <span class="hk">"BelongsTo"</span>: { <span class="hk">"_oid"</span>: <span class="hs">"Conversation:3000"</span> },
+    <span class="hk">"BelongsTo.Participants.Name"</span>: [<span class="hs">"Jo"</span>]
+  }]
+}]]</pre></div>
+    </div>
+  </div>
+
+  <div class="api-step">
+    <h3><span class="n">3</span>Reply in the same conversation</h3>
+    <div class="pair">
+      <div class="code"><span class="cap">step3.json</span><pre>{
+  <span class="hk">"AssetType"</span>: <span class="hs">"Expression"</span>,
+  <span class="hk">"Content"</span>: <span class="hs">"I actually ran it through Semgrep and it didn't detect anything"</span>,
+  <span class="hk">"Author"</span>: <span class="hs">"Member:1005"</span>,
+  <span class="hk">"BelongsTo"</span>: <span class="hs">"Conversation:3000"</span>,
+  <span class="hk">"InReplyTo"</span>: <span class="hs">"Expression:3001"</span>
+}
+<span class="hc">// BelongsTo joins the existing conversation;</span>
+<span class="hc">// InReplyTo sets the threading.</span></pre></div>
+      <div class="code"><span class="cap">Response (trimmed)</span><pre>{
+  <span class="hk">"assetsCreated"</span>: {
+    <span class="hk">"oidTokens"</span>: [<span class="hs">"Expression:3002"</span>],
+    <span class="hk">"count"</span>: <span class="hp">1</span>
+  }
+}
+<span class="hc">// Participants and LatestActivityAt on</span>
+<span class="hc">// Conversation:3000 are updated by server rules,</span>
+<span class="hc">// not by anything in this payload.</span></pre></div>
+    </div>
+    <div class="callout info"><b>No alias needed from here on</b><p>The conversation already exists, so replies point <code>BelongsTo</code> straight at <code>Conversation:3000</code>. <code>InReplyTo</code> only sets the threading; it doesn't put the reply in a conversation. Send both.</p></div>
+  </div>
+
+  <div class="api-step">
+    <h3><span class="n">4</span>Reply and mention a defect</h3>
+    <div class="pair">
+      <div class="code"><span class="cap">step4.json</span><pre>{
+  <span class="hk">"AssetType"</span>: <span class="hs">"Expression"</span>,
+  <span class="hk">"Content"</span>: <span class="hs">"Default rules don't follow our HttpFetcher wrapper. Logged D-02001 to add a custom rule."</span>,
+  <span class="hk">"Author"</span>: <span class="hs">"Member:1002"</span>,
+  <span class="hk">"BelongsTo"</span>: <span class="hs">"Conversation:3000"</span>,
+  <span class="hk">"InReplyTo"</span>: <span class="hs">"Expression:3002"</span>,
+  <span class="hk">"Mentions"</span>: [<span class="hs">"Defect:1200"</span>]
+}</pre></div>
+      <div class="code"><span class="cap">Check the defect picked it up</span><pre>{
+  <span class="hk">"from"</span>: <span class="hs">"Defect"</span>,
+  <span class="hk">"where"</span>: { <span class="hk">"Number"</span>: <span class="hs">"D-02001"</span> },
+  <span class="hk">"select"</span>: [
+    <span class="hs">"Name"</span>,
+    <span class="hs">"MentionedInExpressions.Content"</span>,
+    <span class="hs">"MentionedInExpressions.BelongsTo"</span>
+  ]
+}</pre></div>
+    </div>
+  </div>
+
+  <div class="api-step">
+    <h3><span class="n">5</span>Reply and mention a member</h3>
+    <div class="pair">
+      <div class="code"><span class="cap">step5.json</span><pre>{
+  <span class="hk">"AssetType"</span>: <span class="hs">"Expression"</span>,
+  <span class="hk">"Content"</span>: <span class="hs">"Custom rule flagged fetchPreview(). Fix is pushed. @Linda, can you review?"</span>,
+  <span class="hk">"Author"</span>: <span class="hs">"Member:1005"</span>,
+  <span class="hk">"BelongsTo"</span>: <span class="hs">"Conversation:3000"</span>,
+  <span class="hk">"InReplyTo"</span>: <span class="hs">"Expression:3003"</span>,
+  <span class="hk">"Mentions"</span>: [<span class="hs">"Member:1009"</span>]
+}
+<span class="hc">// Member:1009 (Linda) is added to Participants</span></pre></div>
+      <div class="code"><span class="cap">Confirm Linda is a participant</span><pre>{
+  <span class="hk">"from"</span>: <span class="hs">"Conversation"</span>,
+  <span class="hk">"where"</span>: { <span class="hk">"ID"</span>: <span class="hs">"Conversation:3000"</span> },
+  <span class="hk">"select"</span>: [
+    <span class="hs">"Participants.Name"</span>,
+    <span class="hs">"ContainedExpressions.Author.Name"</span>
+  ]
+}
+<span class="hc">// Participants: Jo, Mark, Linda</span>
+<span class="hc">// Authors:      Jo, Mark  (Linda wrote nothing)</span></pre></div>
+    </div>
+  </div>
+
+  <div class="api-step">
+    <h3><span class="n">6</span>Read the whole thread in order</h3>
+    <div class="pair">
+      <div class="code"><span class="cap">From the conversation</span><pre>{
+  <span class="hk">"from"</span>: <span class="hs">"Conversation"</span>,
+  <span class="hk">"where"</span>: { <span class="hk">"ID"</span>: <span class="hs">"Conversation:3000"</span> },
+  <span class="hk">"select"</span>: [
+    <span class="hs">"Topic.Content"</span>,
+    <span class="hs">"Participants.Name"</span>,
+    <span class="hs">"LatestActivityAt"</span>,
+    {
+      <span class="hk">"from"</span>: <span class="hs">"ContainedExpressions"</span>,
+      <span class="hk">"select"</span>: [
+        <span class="hs">"Content"</span>,
+        <span class="hs">"Author.Name"</span>,
+        <span class="hs">"AuthoredAt"</span>,
+        <span class="hs">"InReplyTo"</span>,
+        <span class="hs">"Mentions.Name"</span>
+      ],
+      <span class="hk">"sort"</span>: [<span class="hs">"+AuthoredAt"</span>]
+    }
+  ]
+}</pre></div>
+      <div class="code"><span class="cap">From the story, every conversation it's in</span><pre>{
+  <span class="hk">"from"</span>: <span class="hs">"Story"</span>,
+  <span class="hk">"where"</span>: { <span class="hk">"Number"</span>: <span class="hs">"S-01234"</span> },
+  <span class="hk">"select"</span>: [
+    <span class="hs">"Name"</span>,
+    {
+      <span class="hk">"from"</span>: <span class="hs">"MentionedInExpressions.BelongsTo"</span>,
+      <span class="hk">"select"</span>: [
+        <span class="hs">"Topic.Content"</span>,
+        <span class="hs">"ContainedExpressions.@Count"</span>,
+        <span class="hs">"Participants.Name"</span>
+      ]
+    }
+  ]
+}
+<span class="hc">// Several queries in one request?</span>
+<span class="hc">// Wrap them in a JSON array: [ {...}, {...} ]</span></pre></div>
+    </div>
+  </div>
+
+  <div class="callout"><b>Verify these before relying on them</b><p>The request shapes (create with <code>AssetType</code>, query with <code>from</code>/<code>where</code>/<code>select</code>, nested sub-selects, a JSON array for multiple commands, <code>previewOnly</code>) follow the documented <code>/api/asset</code> behavior. The Expression-specific parts weren't run against a live instance: whether <code>Author</code> is writable or always set from your token, whether a sub-select <code>from</code> accepts a two-hop path like <code>MentionedInExpressions.BelongsTo</code>, whether <code>sort</code> works inside a sub-select, and whether the UI also adds the story to a reply's <code>Mentions</code>. Run each with <code>?previewOnly=true</code> first, and check failures in <code>commandFailures</code>.</p></div>
+</details>
+</section>
+
+<footer>
+  <p>Sources: My scribbly notes, the VersionOne API docs for <code>/api/asset</code> and the VersionOne Bulk API notes on GitHub.</p>
+</footer>
+</div>
+</body>
+</html>
