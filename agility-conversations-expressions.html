@@ -595,8 +595,7 @@ details.fold>:not(summary):first-of-type{margin-top:8px}
     </div>
   </div>
 
-  <div class="callout"><b>Verify these before relying on them</b><p>The request shapes (create with <code>AssetType</code>, query with <code>from</code>/<code>where</code>/<code>select</code>, nested sub-selects, a JSON array for multiple commands, <code>previewOnly</code>) follow the documented <code>/api/asset</code> behavior. The Expression-specific parts weren't run against a live instance: whether <code>Author</code> is writable or always set from your token, whether a sub-select <code>from</code> accepts a two-hop path like <code>MentionedInExpressions.BelongsTo</code>, whether <code>sort</code> works inside a sub-select, and whether the UI also adds the story to a reply's <code>Mentions</code>. Run each with <code>?previewOnly=true</code> first, and check failures in <code>commandFailures</code>.</p></div>
-</details>
+  </details>
 </section>
 
 <footer>
